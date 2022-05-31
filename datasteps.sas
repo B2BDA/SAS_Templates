@@ -149,3 +149,97 @@ AB 1 2 3 4
 CB 3 4 5 3
 ;
 run;
+
+
+/* looping in SAS */
+
+data a;
+do i = 1 to 5 by 0.5;
+y = i*2;
+output;
+end;
+run;
+
+/* while executes as long as certain conditions hold true where as until executes only until a certain condition is met */
+data a;
+do i = 1 to 5 by 0.5 while(y<5);
+y = i*2;
+output;
+end;
+run;
+
+data a;
+do i = 1 to 5 by 0.5 until(y<5);
+y = i*2;
+output;
+end;
+run;
+
+data a;
+do i = 1,2,3,4;
+y = i*2;
+output;
+end;
+run;
+
+data a;
+input year;
+cards;
+4
+3
+6
+3
+9
+;
+run;
+
+data b;
+set a;
+if year>5 then do;
+month = year *12;
+put year= month=;
+end;
+else yearsleft = year - 5;
+run;
+
+data b;
+set a;
+if year>5 then
+month = year *12;
+else yearsleft = year - 5;
+run;
+
+/* where clause */
+data sales;
+input name$ sales_1-sales_4;
+total = sum(sales_1,sales_2,sales_3,sales_4);
+cards;
+AB 1 2 3 4
+CB 3 4 5 3
+;
+run;
+
+proc sql;
+select * from sales where total>5;
+
+
+proc print data = sales(where = (total>5));
+run;
+
+proc print data=sales;
+where total > 11;
+run;
+
+/* sorting */
+data house_price1;
+set house_price;
+run; 
+
+proc print data=house_price1;
+run;
+
+proc sort data = house_price1 out = hp;
+by descending tax;
+run;
+proc print data=hp;
+run;
