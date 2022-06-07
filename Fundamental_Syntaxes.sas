@@ -7,7 +7,7 @@ datalines;
 46 F
 95 M
 ;
-proc print personnel;
+proc print data = personnel;
 title "Bishwa's Report";
 run;
 
