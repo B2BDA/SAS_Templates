@@ -76,3 +76,37 @@ proc print data = SASPRG1.adw_employees;
 	var Employee_ID	National_ID_Number	First_Name	Middle_Name	Last_Name;
 	sum salary;
 run;
+/* sas format */
+/* when ever we use $ that mean we are specifying char variable. */
+/* $<format_name><width>.<num of decimal palce> */
+libname sasprg1 "/home/u61606629/sasuser.v94/SASPRG1";
+run;
+
+proc print data = sasprg1.adw_employees;
+	where salary > 8000;
+	var Employee_ID	Salary National_ID_Number Hire_Date First_Name Middle_Name Last_Name;
+	format salary dollar10.2 Hire_Date date11.;
+run;
+
+proc print data = sasprg1.adw_employees;
+	where salary > 8000;
+	var Employee_ID	Salary National_ID_Number Hire_Date First_Name Middle_Name Last_Name;
+	format salary comma10.2 Hire_Date date11.;
+run;
+
+proc print data = sasprg1.adw_employees;
+	where salary > 8000;
+	var Employee_ID	Salary National_ID_Number Hire_Date First_Name Middle_Name Last_Name;
+	format salary dollar10.2 Hire_Date yymmdd10.;
+run;
+
+/* subset for date */
+/* '01JAN2009'd
+'01jan60'd
+'1jan60'd
+'01Jan1960'd*/
+proc print data = sasprg1.adw_employees;
+	where Hire_Date > '01jan2009'd;
+	var Employee_ID	Salary National_ID_Number Hire_Date First_Name Middle_Name Last_Name;
+	format salary dollar10.2 Hire_Date yymmdd10.;
+run;
