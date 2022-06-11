@@ -110,3 +110,79 @@ proc print data = sasprg1.adw_employees;
 	var Employee_ID	Salary National_ID_Number Hire_Date First_Name Middle_Name Last_Name;
 	format salary dollar10.2 Hire_Date yymmdd10.;
 run;
+
+/* Custom Formatting using PROC */
+
+
+proc format;
+	value $mfmap
+		'M' = 'Male'
+		'F' = 'Female'
+		other = 'N/A';
+		/* here we can specify another format as well */
+		/* for numeric format */
+		/* value num_fm
+		1 ='x'
+		2 = 'y';
+		/* range format */
+		/* 100 - 199 = 'Seg1'
+		200 -< 299 (exclude 299) = 'Seg2'
+		; */
+		
+run;
+
+proc print data = sasprg1.adw_employees;
+	where Hire_Date > '01jan2009'd;
+	var Employee_ID	Salary National_ID_Number Hire_Date First_Name Middle_Name Last_Name Gender;
+	format salary dollar10.2 Hire_Date yymmdd10. Gender $mfmap.;
+run;
+
+
+proc sql;
+create table sasprg1.salary_stat as 
+select max(salary) as max_sal, min(salary) as min_sal from sasprg1.adw_employees;
+quit;
+
+data sal_stat;
+	max_sal = 262962;
+	min_sal = 18783;
+run;
+proc print data = sal_stat;
+	
+proc format;
+	value sal_seg
+		low - 18783= 'Seg1'
+		18784 - high= 'Seg2'; 
+run;
+
+proc print data = sasprg1.adw_employees(obs=1000000);
+	var Employee_ID	Salary National_ID_Number Hire_Date First_Name Middle_Name Last_Name Gender;
+	format salary sal_seg.;
+run;
+
+
+/* sort data in sas using proc sort */
+proc sort data = sasprg1.adw_employees
+	out = sorted_adw_employees;
+	by gender descending salary;
+run;
+
+proc print data = sorted_adw_employees;
+	by gender;
+	format gender $mfmap.  salary dollar10.;
+run;
+
+
+/* Title Footnotes etc */
+title "Employee wit Salary > 8k";
+footnote 'Internal';
+footnote2 '2019';
+proc print data = sasprg1.adw_employees label split='*';
+	where salary > 8000;
+	var Employee_ID	Salary National_ID_Number Hire_Date First_Name Middle_Name Last_Name;
+	format salary dollar10.2 Hire_Date date11.;
+	label Employee_ID = "Employee*ID" National_ID_Number = 'NID';
+run;
+title;
+footnote;
+
