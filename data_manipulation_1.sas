@@ -192,3 +192,79 @@ proc freq data = sasprg1.adw_employees;
 	table hire_date;
 	format hire_date date11.;
 run;
+
+/* Contigency table */
+/* Cross Tab */
+
+/* 1st we need to sort the table using by statement */
+
+
+proc sort data = sasprg1.adw_employees;
+	by gender;
+run;
+
+/* proc freq with format */
+proc format;
+	value sal_segment
+		low -< 30000 = 'Seg1'
+		30000 -< 50000 = 'Seg2'
+		50000 - high = 'Seg3';
+run;
+proc freq data = sasprg1.adw_employees order = freq;
+	by gender;
+	table gender / missing /* nocum */;
+	table marital_status;
+run;
+/* another method */
+proc format;
+	value sal_segment
+		low -< 30000 = 'Seg1'
+		30000 -< 50000 = 'Seg2'
+		50000 - high = 'Seg3';
+run;
+proc freq data = sasprg1.adw_employees order = freq;
+	table gender * salary ;/* nocum /nocol /norow */
+	format salary sal_segment.;
+	table marital_status;
+run;
+ /* unpivoted */
+proc format;
+	value sal_segment
+		low -< 30000 = 'Seg1'
+		30000 -< 50000 = 'Seg2'
+		50000 - high = 'Seg3';
+run;
+proc freq data = sasprg1.adw_employees order = freq;
+	table gender * salary / list ;/* nocum /nocol /norow */
+	format salary sal_segment.;
+	table marital_status;
+run;
+
+/* summarize numeric data */
+proc means data = sasprg1.adw_employees /* more statictical params are availbe here https://documentation.sas.com/doc/en/pgmsascdc/9.4_3.5/prochp/prochp_hpsummary_syntax03.htm;*/;
+	var salary;
+run;
+
+
+/* combining with by statement - cross tab */
+proc sort data = sasprg1.adw_employees;
+	by gender;
+run;
+proc means data = sasprg1.adw_employees /* more statictical params are availbe here https://documentation.sas.com/doc/en/pgmsascdc/9.4_3.5/prochp/prochp_hpsummary_syntax03.htm;*/;
+	by gender;
+	var salary;
+run;
+/* unpivoted */
+proc means data = sasprg1.adw_employees /*/nonobs*/ ;
+	class gender marital_status /missing ;
+	var salary;
+	format gender $mfmap.;
+run;
+
+/* Univariate analysis */
+/* statistical tests */
+
+proc univariate data = sasprg1.adw_employees;
+	var salary;
+run;
+
