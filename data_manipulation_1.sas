@@ -95,3 +95,100 @@ run;
 proc print data = adw_emp label;
 	* var hire_date salary bonus;
 run;
+/* Simple functions - sum */
+
+libname sasprg1 "/home/u61606629/sasuser.v94/SASPRG1";
+run;
+
+data adw_emp_compensation;
+	set sasprg1.adw_employees;
+	bonus = 500;
+	/*if salary = . then compensation = bonus;
+	else compensation = salary + bonus;*/
+	compensation = sum(bonus,salary);
+	year_of_hire = year(hire_date);
+	keep first_name last_name salary gender bonus compensation hire_date year_of_hire;
+	format hire_date date11. salary dollar10. bonus dollar10. compensation dollar10. ;
+run;
+
+proc print data = adw_emp_compensation;
+run;
+
+proc freq data = adw_emp_compensation;
+	where salary < 3000;
+	table year_of_hire;
+	/* table hire_date;
+		format hire_date year.; */
+run;
+
+/* If then else statement */
+data adw_emp_compensation;
+	set sasprg1.adw_employees;
+	if job_title = 'Production Technician - WC10' or job_title = 'Production Supervisor - WC10'
+	then bonus = 1.0;
+	else if job_title in ('Production Technician - WC20','Production Supervisor - WC20') then bonus = 1.5;
+	else if job_title = 'Production Technician - WC30' then bonus = 2;
+	else if job_title = 'Production Technician - WC40' then bonus = 2.5;
+	else if job_title = 'Production Technician - WC45' then bonus = 3.0;
+	else if job_title = 'Production Technician - WC50' then bonus = 3.5;
+	else if job_title = 'Production Technician - WC60' then bonus = 4;
+	else bonus = 0;
+	compensation = sum(salary,bonus);
+	keep job_title first_name last_name salary gender bonus compensation hire_date year_of_hire;
+	format hire_date date11. salary dollar10. bonus dollar10. compensation dollar10. ;
+run;
+
+proc print data = adw_emp_compensation;
+run;
+
+/*If then Do and End Statement when executing more than on action in than statement*/
+data adw_emp_compensation;
+	set sasprg1.adw_employees;
+	if job_title = 'Production Technician - WC10' or job_title = 'Production Supervisor - WC10'
+	then do ;
+			bonus = 1.5;
+			dayoff = 3;
+		end;
+	else if job_title in ('Production Technician - WC20','Production Supervisor - WC20') then 
+		do ;
+			bonus = 1.5;
+			dayoff = 1;
+		end;
+	else if job_title = 'Production Technician - WC30' then bonus = 2;
+	else if job_title = 'Production Technician - WC40' then bonus = 2.5;
+	else if job_title = 'Production Technician - WC45' then bonus = 3.0;
+	else if job_title = 'Production Technician - WC50' then bonus = 3.5;
+	else if job_title = 'Production Technician - WC60' then bonus = 4;
+	else bonus = 0;
+	compensation = sum(salary,bonus);
+	keep job_title first_name last_name salary gender bonus compensation hire_date year_of_hire dayoff;
+	format hire_date date11. salary dollar10. bonus dollar10. compensation dollar10. ;
+run;
+
+proc print data = adw_emp_compensation;
+run;
+
+/* summarize numeric and char data using proc freq, means and univariate */
+proc freq data = sasprg1.adw_employees order = freq;
+	table gender / missing /* nocum */;
+	table marital_status;
+run;
+
+/* proc freq with format */
+proc format;
+	value sal_segment
+		low -< 30000 = 'Seg1'
+		30000 -< 50000 = 'Seg2'
+		50000 - high = 'Seg3';
+run;
+
+/* proc print data = sasprg1.adw_employees;
+	format salary sal_segment.;
+run;
+*/
+proc freq data = sasprg1.adw_employees;
+	table salary;
+	format salary sal_segment.;
+	table hire_date;
+	format hire_date date11.;
+run;
