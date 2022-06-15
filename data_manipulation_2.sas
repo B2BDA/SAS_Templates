@@ -17,3 +17,39 @@ run;
 
 proc print data = emp_smp;
 run;
+
+/* create multiple datasets using output statements */
+libname sasprg1 "/home/u61606629/sasuser.v94/SASPRG1";
+
+data male(keep = employee_id gender salary) female(keep =  employee_id gender salary) others (keep = employee_id gender salary);
+	set sasprg1.adw_employees(firstobs=2 obs= 100); /* data will be read from the 2nd obs till 102 */
+	if gender = 'M' then output male;
+	else if gender = 'F' then output female;
+	else output others;
+	
+run;
+
+proc print data = male (obs = 5);
+run;
+proc print data = female;
+run;
+proc print data = others;
+run;
+
+
+libname sasprg1 "/home/u61606629/sasuser.v94/SASPRG1";
+
+data male female others ;
+	set sasprg1.adw_employees(firstobs=2 obs= 100 keep = employee_id gender salary job_title rename = (salary = salary_) where = (job_title contains 'Production Technician')); /* data will be read from the 2nd obs till 102 */
+	if gender = 'M' then output male;
+	else if gender = 'F' then output female;
+	else output others;
+	
+run;
+
+proc print data = male (obs = 5);
+run;
+proc print data = female;
+run;
+proc print data = others;
+run;
