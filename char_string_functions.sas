@@ -9,15 +9,6 @@ data sample;
 	code_len0 = length(code0);
 run;
 
-/* generate quality leads
-drive acquisition
-approval
-onboarding
-activation
-account mngmt
-reactivation
-attrition
-*/
 
 
 libname sasprg1 "/home/u61606629/sasuser.v94/SASPRG1";
