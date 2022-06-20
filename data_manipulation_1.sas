@@ -170,7 +170,8 @@ run;
 
 /* summarize numeric and char data using proc freq, means and univariate */
 proc freq data = sasprg1.adw_employees order = freq;
-	table gender / missing /* nocum */;
+	table gender / missing /* nocum nopercent*/;
+	where gender = 'F';
 	table marital_status;
 run;
 
@@ -223,7 +224,7 @@ proc format;
 		50000 - high = 'Seg3';
 run;
 proc freq data = sasprg1.adw_employees order = freq;
-	table gender * salary ;/* nocum /nocol /norow */
+	table gender * salary/ nocum nocol norow nopercent;
 	format salary sal_segment.;
 	table marital_status;
 run;
@@ -267,4 +268,42 @@ run;
 proc univariate data = sasprg1.adw_employees;
 	var salary;
 run;
+
+/* output options */
+data le_9k(keep = type msrp cylinders) ge_9k(keep = type msrp cylinders);
+	set sashelp.cars;
+	if msrp > 90000 then output ge_9k;
+	else output le_9k;
+run;
+proc print data = le_9k;
+run;
+proc print data = ge_9k;
+run;
+
+/* proc sort options - nodupkey nodup*/
+
+/* nodupkey is to make sure no duplicate by a columns name*/
+
+proc sort data = sashelp.cars out = sorted;
+by descending msrp;
+run;
+
+proc sort data = sashelp.cars out = sorted;
+by descending msrp cylinders; /* sorted descending msrp and ascending cylinders */
+run;
+
+proc sort data = sashelp.cars nodup out = unique_sorted;
+by _all_; /* all unique rows */
+run;
+
+proc sort data = sashelp.cars nodupkey out = sorted;
+by type; /* NODUP will delete duplicated observations (records that are identical to each other) while NODUPKEY will delete those observations that have duplicate BY values (the sort BY variables that you name in PROC SORT).
+
+ */
+run;
+
+/* creates two tables one with duplicates indentified and another with unique */
+proc sort data = sashelp.cars nodupkey out = sorted DUPOUT= duplicates;
+by type;
+run; 
 
