@@ -246,3 +246,43 @@ run;
 %mend;
 %auto_rep("SUV");
 /* if we are using any macro variable for comparions we should use double quotes */
+
+
+/* do loops in macro full automation */
+/* https://www.listendata.com/2016/01/single-double-triple-ampersand-sas.html */
+/* https://sasnrd.com/select-into-multiple-macro-variables-proc-sql-sas/ */
+/*https://communities.sas.com/t5/SAS-Programming/Using-DO-loop-to-merge-multiple-datasets/td-p/682320*/
+options mprint mlogic;
+proc sql;
+select distinct type into : type1 - from sashelp.cars;
+quit;
+
+
+proc sql;
+select count(distinct type) into: type_count from sashelp.cars;
+quit;
+
+%put &type_count.;
+%put &type1;
+
+%MACRO automate_summary();
+%do i = 1 %to &type_count.;
+	proc sql;
+	create table &&type&i.._summary as
+	select type, avg(cylinders) as avg_cyl from
+	sashelp.cars where type = "&&type&i."
+	group by 1;
+	quit;
+%end;
+data all_summary;
+	
+		set 
+		%do i = 1 %to &type_count.;
+		&&type&i.._summary
+		%end;;
+run;
+proc print data = all_summary;
+run;
+%mend;
+
+%automate_summary();
